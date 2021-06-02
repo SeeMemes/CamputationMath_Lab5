@@ -92,53 +92,67 @@ def lagrange(array_x, array_y, cur_x):
 ##############################
 #           NEWTON           #
 ##############################
-def newton_matrix(array_y):
-    n = len(array_y)
-    res_arr = [[0] * n for i in range(n)]
-    res_arr[0] = array_y
-    for i in range(1, len(array_y)):
-        for j in range(0, len(array_y) - i):
-            res_arr[i][j] = res_arr[i - 1][j + 1] - res_arr[i - 1][j]
-    '''
-    for i in range(len(array_y)):
-        for j in range(len(array_y)):
-            print(str(res_arr[i][j]) + ' ', end='')
-        print()
-    '''
-    return res_arr
+def interpolateForward(t, differencesByOrder, order, previous):
+    valueY = differencesByOrder[0][previous];
+    for i in range(1, order):
+        valueY += ((t / math.factorial(i)) * differencesByOrder[i][previous])
+        t *= (t - i);
+    return valueY;
+
+
+def interpolateBackward(t, differencesByOrder, order):
+    valueY = differencesByOrder[0][order];
+    for i in range(1, order):
+        valueY += (t / math.factorial(i)) * differencesByOrder[i][order - i]
+        t *= (t - i);
+    return valueY;
+
 
 
 def newton_polynomial(array_x, array_y, cur_x):
-    n = len(array_x)
-    nm = newton_matrix(array_y)
-    Nn = 0
-    h = array_x[1] - array_x[0]
-    if x < (array_x[n - 1] + array_x[0]) / 2:
-        i = 0
-        while x > array_x[i]:
-            i += 1
-        i -= 1
-        t = (cur_x - array_x[i]) / h
-        counter = 1
-        z = 0
-        for j in range(0, len(nm[i])):
-            Nn += nm[j][i] * counter / math.factorial(j)
-            counter *= (t - z)
-            z += 1
+    m = len(array_x)
+    array_x.astype(float)
+    array_y.astype(float)
+    array_x = np.copy(array_x)
+    array_y = np.copy(array_y)
+
+    previous = 0
+
+    for i in range(len(array_x) - 1):
+        if (cur_x >= array_x[i] and array_x[i + 1] >= cur_x):
+            previous = i
+            break
+    if (cur_x >= array_x[-1]):
+        previous = len(array_x) - 1
+
+    differencesByOrder = list()
+    order = 0
+
+    y_i = list()
+    for i in range(len(array_y)):
+        y_i.append(array_y[i])
+
+    differencesByOrder.append(y_i)
+
+    while order < len(array_y) - 1:
+        order += 1
+        delta_Y = list()
+        previous_delta_Y = differencesByOrder[order - 1]
+        for i in range(len((previous_delta_Y)) - 1):
+            delta_Y.append(previous_delta_Y[i + 1] - previous_delta_Y[i])
+        differencesByOrder.append(delta_Y)
+
+    if (previous < len(array_x) / 2):
+        t = (cur_x - array_x[previous]) / (array_x[1] - array_x[0])
+        return interpolateForward(t, differencesByOrder,(len(array_y) - previous - 1), previous), None
     else:
-        i = n - 1
-        while x < array_x[i]:
-            i -= 1
-        i += 1
-        t = (cur_x - array_x[i]) / h
-        counter = 1
-        z = 0
-        for j in range(0, len(nm[i])):
-            if (i - j >= 0):
-                Nn += nm[j][i-j] * counter / math.factorial(j)
-            counter *= (t + z)
-            z += 1
-    return Nn, None
+        if(previous == (len(array_x)-1)):
+            next = previous
+        else:
+            next = previous+1
+        t = (cur_x - array_x[next]) / (array_x[1] - array_x[0])
+        return interpolateBackward(t, differencesByOrder, next), None
+
 
 
 ##############################
