@@ -94,7 +94,6 @@ def lagrange(array_x, array_y, cur_x):
 ##############################
 def interpolateForward(t, differencesByOrder, order, previous):
     valueY = differencesByOrder[0][previous]
-    print("Строка: ", str(previous + 1))
     for i in range(1, order):
         valueY += ((t / math.factorial(i)) * differencesByOrder[i][previous])
         t *= (t - i)
@@ -102,12 +101,11 @@ def interpolateForward(t, differencesByOrder, order, previous):
 
 
 def interpolateBackward(t, differencesByOrder, order):
-    valueY = differencesByOrder[0][order];
-    print("Строка: ", str(order + 1))
+    valueY = differencesByOrder[0][order]
     for i in range(1, order):
         valueY += (t / math.factorial(i)) * differencesByOrder[i][order - i]
-        t *= (t + i);
-    return valueY;
+        t *= (t + i)
+    return valueY
 
 
 def newton_polynomial(array_x, array_y, cur_x):
