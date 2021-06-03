@@ -93,20 +93,21 @@ def lagrange(array_x, array_y, cur_x):
 #           NEWTON           #
 ##############################
 def interpolateForward(t, differencesByOrder, order, previous):
-    valueY = differencesByOrder[0][previous];
+    valueY = differencesByOrder[0][previous]
+    print("Строка: ", str(previous + 1))
     for i in range(1, order):
         valueY += ((t / math.factorial(i)) * differencesByOrder[i][previous])
-        t *= (t - i);
-    return valueY;
+        t *= (t - i)
+    return valueY
 
 
 def interpolateBackward(t, differencesByOrder, order):
     valueY = differencesByOrder[0][order];
+    print("Строка: ", str(order + 1))
     for i in range(1, order):
         valueY += (t / math.factorial(i)) * differencesByOrder[i][order - i]
-        t *= (t - i);
+        t *= (t + i);
     return valueY;
-
 
 
 def newton_polynomial(array_x, array_y, cur_x):
@@ -144,15 +145,14 @@ def newton_polynomial(array_x, array_y, cur_x):
 
     if (previous < len(array_x) / 2):
         t = (cur_x - array_x[previous]) / (array_x[1] - array_x[0])
-        return interpolateForward(t, differencesByOrder,(len(array_y) - previous - 1), previous), None
+        return interpolateForward(t, differencesByOrder, (len(array_y) - previous - 1), previous), None
     else:
-        if(previous == (len(array_x)-1)):
+        if (previous == (len(array_x) - 1)):
             next = previous
         else:
-            next = previous+1
+            next = previous + 1
         t = (cur_x - array_x[next]) / (array_x[1] - array_x[0])
         return interpolateBackward(t, differencesByOrder, next), None
-
 
 
 ##############################
